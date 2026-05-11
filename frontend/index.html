@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>물류센터 플랫폼</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 상단바 -->
+    <div id="topbar">
+      <span class="logo">물류센터 플랫폼</span>
+      <div id="filter-bar" style="background:transparent; border:none; padding:0; flex:1;">
+        <select id="filter-status">
+          <option value="">전체 상태</option>
+          <option value="운영중">운영중</option>
+          <option value="개발중">개발중</option>
+          <option value="공급예정">공급예정</option>
+          <option value="철거">철거</option>
+        </select>
+        <select id="filter-region">
+          <option value="">전체 지역</option>
+        </select>
+        <input type="text" id="search-input" placeholder="센터명/주소 검색" style="width:180px;" />
+      </div>
+      <span class="spacer"></span>
+      <span id="role-badge" class="role-badge"></span>
+      <!-- admin only -->
+      <button id="btn-upload" class="btn btn-sm btn-light d-none" onclick="openUpload()">엑셀 업로드</button>
+      <button class="btn btn-sm btn-outline-light ms-1" onclick="logout()">로그아웃</button>
+    </div>
+
+    <div id="main">
+      <!-- 지도 -->
+      <div id="map"></div>
+
+      <!-- 사이드패널 -->
+      <div id="sidebar">
+        <div id="sidebar-header">
+          <h2 id="sidebar-title">센터를 선택하세요</h2>
+          <button id="btn-close-sidebar" class="btn btn-sm btn-light d-none" onclick="closeSidebar()">✕</button>
+        </div>
+
+        <!-- 탭 (센터 선택 후 표시) -->
+        <div id="tab-nav" class="tab-nav d-none">
+          <button class="tab-btn active" onclick="showTab('info')">기본정보</button>
+          <button class="tab-btn" onclick="showTab('lease')">임대차</button>
+          <button class="tab-btn" onclick="showTab('vacancy')">공실률</button>
+          <button class="tab-btn" onclick="showTab('transaction')">거래</button>
+        </div>
+
+        <div id="sidebar-body">
+          <!-- 기본: 센터 목록 -->
+          <div id="panel-list"></div>
+
+          <!-- 탭 패널들 (선택 후) -->
+          <div id="panel-info" class="d-none"></div>
+          <div id="panel-lease" class="d-none"></div>
+          <div id="panel-vacancy" class="d-none"></div>
+          <div id="panel-transaction" class="d-none"></div>
+        </div>
+
+        <!-- admin: 수정/삭제 버튼 -->
+        <div id="admin-actions" class="d-none p-2 border-top d-flex gap-2">
+          <button class="btn btn-sm btn-outline-danger w-50" onclick="deleteCenter()">삭제</button>
+          <button class="btn btn-sm btn-primary w-50" onclick="openEditModal()">수정</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 업로드 패널 (admin only) -->
+  <div id="upload-panel">
+    <div id="upload-panel-header">
+      <strong style="flex:1;">엑셀 데이터 업로드</strong>
+      <button class="btn btn-sm btn-light" onclick="closeUpload()">✕</button>
+    </div>
+    <div id="upload-panel-body">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">업로드 유형</label>
+        <select id="upload-type" class="form-select form-select-sm" onchange="renderUploadForm()">
+          <option value="centers">① 물류센터 (공급/공급예정)</option>
+          <option value="tenants">② 임차사 정보</option>
+          <option value="leases">③ 임대료 정보</option>
+          <option value="vacancy">④ 공실률 정보</option>
+          <option value="transactions">⑤ 거래 정보</option>
+        </select>
+        <small class="text-muted">① → ② → ③④⑤ 순서로 업로드하세요</small>
+      </div>
+
+      <div id="upload-form-area"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

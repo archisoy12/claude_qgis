@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       logistics
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL:    postgresql+asyncpg://postgres:${DB_PASSWORD:-postgres}@db:5432/logistics
+      JWT_SECRET:      ${JWT_SECRET:-change-this-in-production}
+      ADMIN_PASSWORD:  ${ADMIN_PASSWORD:-admin1234}
+      VIEWER_PASSWORD: ${VIEWER_PASSWORD:-viewer1234}
+      KAKAO_API_KEY:   ${KAKAO_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./frontend:/app/frontend:ro
+
+volumes:
+  pgdata:
